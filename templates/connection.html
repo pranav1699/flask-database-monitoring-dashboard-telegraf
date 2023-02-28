@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<p></p>
+<p></p>
+<p></p>
+
+<h5>Database connection</h5>
+<form method="POST">
+  <input name='connection_name' placeholder="Enter the name">
+  <label for="database">Choose a Database:</label>
+
+  <select name="database">
+    <option value="mysql">Mysql</option>
+    <option value="postgresql">Postgresql</option>
+  </select>
+  <input name="command" placeholder="Connection string">
+  <input type="submit">
+</form>
+<p>
+  {{ output | safe }}
+</p>
+
+
+
+<div style="margin-left: 20px ;"></div>
+<h4>Telegraf execution</h4>
+<p>
+  {{ telegraf_out | safe }}
+</p>
+</div>
+
+
+{% endblock %}

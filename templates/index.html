@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<meta http-equiv="refresh" content="5">
+    <h3>{{ init | safe }}</h3>
+    <div style="height: 550pxpx; width:auto; display: flex; border-radius: 10px; background-color: rgb(224, 222, 219); padding: 20px; margin: 20px; margin-bottom: 5px;">
+        <div class="chart" style="height: 500px;" id  = "linegraph"></div>
+        <div class="chart" style="height: 500px;" id  = "bargraph"></div>          
+    </div>
+    <div class = "chart" id ="table"></div>
+    <div style="padding: 20px; margin: 50px;">
+        <div id="example-table" style="border-radius: 5px; height: 350;"></div>
+    </div>
+    <div id="example-table" style="border-radius: 5px; height: 350;"></div>
+        
+    <script>
+        var graphs = {{data | safe}};
+        var graphs2 = {{data2 | safe}};
+        var table = {{table | safe}};
+        var tabulator_table= {{tabulator_data | safe}};
+        Plotly.newPlot('linegraph',graphs,{displayModeBar: false});
+        Plotly.newPlot('bargraph',graphs2,{displayModeBar: false});
+        Plotly.newPlot('table',table,{displayModeBar: false});
+        var minMaxFilterEditor = function(cell, onRendered, success, cancel, editorParams){
+
+        var end;
+
+        var container = document.createElement("span");
+
+        //create and style inputs
+        var start = document.createElement("input");
+        start.setAttribute("type", "number");
+        start.setAttribute("placeholder", "Min");
+        start.setAttribute("min", 0);
+        start.setAttribute("max", 100);
+        start.style.padding = "4px";
+        start.style.width = "50%";
+        start.style.boxSizing = "border-box";
+
+        start.value = cell.getValue();
+
+        function buildValues(){
+            success({
+                start:start.value,
+                end:end.value,
+            });
+        }
+
+        function keypress(e){
+            if(e.keyCode == 13){
+                buildValues();
+            }
+
+            if(e.keyCode == 27){
+                cancel();
+            }
+        }
+
+        end = start.cloneNode();
+        end.setAttribute("placeholder", "Max");
+
+        start.addEventListener("change", buildValues);
+        start.addEventListener("blur", buildValues);
+        start.addEventListener("keydown", keypress);
+
+        end.addEventListener("change", buildValues);
+        end.addEventListener("blur", buildValues);
+        end.addEventListener("keydown", keypress);
+
+
+        container.appendChild(start);
+        container.appendChild(end);
+
+        return container;
+        }
+
+        //custom max min filter function
+        function minMaxFilterFunction(headerValue, rowValue, rowData, filterParams){
+        //headerValue - the value of the header filter element
+        //rowValue - the value of the column in this row
+        //rowData - the data for the row being filtered
+        //filterParams - params object passed to the headerFilterFuncParams property
+
+            if(rowValue){
+                if(headerValue.start != ""){
+                    if(headerValue.end != ""){
+                        return rowValue >= headerValue.start && rowValue <= headerValue.end;
+                    }else{
+                        return rowValue >= headerValue.start;
+                    }
+                }else{
+                    if(headerValue.end != ""){
+                        return rowValue <= headerValue.end;
+                    }
+                }
+            }
+
+        return true; //must return a boolean, true if it passes the filter.
+        }
+
+
+        var table = new Tabulator("#example-table", {
+            data: tabulator_table,
+            layout:"fitColumns",
+            height: "350px",
+            movableRows: true,
+        // groupBy:"Group",
+            groupStartOpen:false,
+            //movableRows: true,
+            movableColumns: true,
+            columns:[
+                {title:"time", field:"time",responsive:0},
+                {title:"db", field:"db",responsive:0,headerFilter:"input"},
+                {title:"tup_fetched", field:"tup_fetched"},
+                ],
+            //autoColumns: true
+        });
+
+    </script>
+
+{% endblock %}
